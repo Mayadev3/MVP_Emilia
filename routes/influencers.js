@@ -1,13 +1,15 @@
 var express = require('express');
 var router = express.Router();
 const db = require("../model/helper");
+const { ensureIsAdmin } = require('../middleware/guards');
+const { ensureUserLoggedIn } = require('../middleware/guards');
 
 /* GET users listing. */
 // router.get('/', function(req, res, next) {
 //   res.send('respond with a resource');
 // });
 
-router.get("/", function(req, res, next) {
+router.get("/", ensureUserLoggedIn, function(req, res, next) {
   const search = req.query.search;
   db(` 
     SELECT 

@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 const db = require("../model/helper");
+const { ensureIsAdmin } = require('../middleware/guards');
+const { ensureUserLoggedIn } = require('../middleware/guards');
 
 
-router.get("/", function(req, res, next) {
+router.get("/", ensureUserLoggedIn, function(req, res, next) {
   db("SELECT * FROM collabs ORDER BY date ASC;")
     .then(results => {
       res.send(results.data);
@@ -11,7 +13,7 @@ router.get("/", function(req, res, next) {
     .catch(err => res.status(500).send(err.message));
 });
 
-router.get("/:id", async (req, res, next) => {
+router.get("/:id", ensureUserLoggedIn, async (req, res, next) => {
   let id = req.params.id;
 
   try {
@@ -27,7 +29,7 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", ensureIsAdmin, async (req, res, next) => {
   let { influencer_name, 
     handle, 
     platform,
@@ -78,7 +80,7 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.put("/:collab_id", async (req, res) => {
+router.put("/:collab_id", ensureIsAdmin, async (req, res) => {
   let collab_id = req.params.collab_id;
 
   let { influencer_name, 
@@ -128,7 +130,7 @@ router.put("/:collab_id", async (req, res) => {
   }
 });
 
-router.delete("/:collab_id", async (req, res, next) => {
+router.delete("/:collab_id", ensureIsAdmin, async (req, res, next) => {
   let id = req.params.collab_id;
 
   try {

@@ -16,6 +16,27 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `users`
+--
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (
+  id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(30) NOT NULL UNIQUE,
+  password VARCHAR(200) NOT NULL,
+  email VARCHAR(200) NOT NULL,
+  isAdmin tinyint(1) DEFAULT NULL
+);
+
+--
+-- Insert some sample data
+--
+INSERT INTO `users` (username, password, email, isAdmin) 
+VALUES 
+    ('user1','$2b$12$eFzMWbS9SogNtxkmo3J7aO8FQMFQSKbtpwLMIOVsF6GGKpTQdgq.W','user1@acme.com', true),
+    ('user2','$2b$12$WZcGPyrkCvD5e8m0Qz/nFOdBryUcsp6uDlE2MDo/AjuBhPrQBCfI6','user2@acme.com', false),
+    ('user3','$2b$12$tiAz4eaXlpU.CdltUVvw6udLA2BWsitk5zXM2XOm2IpAeAiFfMCdy','user3@acme.com', false);
+
+--
 -- Table structure for table `collabs`
 --
 
