@@ -3,6 +3,7 @@ import './App.css';
 import CollabList from './components/CollabList';
 import NewCollabForm from './components/NewCollabForm';
 import LoginView from './components/LoginView';
+// import ErrorView from './components/ErrorView';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Route, Routes, useNavigate, Link, Outlet, useParams } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
@@ -122,7 +123,11 @@ export default function App() {
     async function doLogin(u, e, p) {
       let myresponse = await Api.loginUser(u, e, p);
       if (myresponse.ok) {
-        Local.saveUserInfo(myresponse.data.token, myresponse.data.user);
+        
+        // Local.saveUserInfo(myresponse.data.token, myresponse.data.user);
+        localStorage.setItem('token', myresponse.data.token);
+        localStorage.setItem('user', JSON.stringify(myresponse.data.user));
+
         setUser(myresponse.data.user);
         setLoginErrorMsg('');
         navigate('/');
@@ -169,7 +174,7 @@ export default function App() {
                     />   
                   } />
 
-                <Route element={
+                <Route path="/" element={
                     <div>
                       <Outlet />
                       <CollabList 
@@ -189,6 +194,8 @@ export default function App() {
                           } 
                         />
                 </Route>
+
+                {/* <Route path="*" element={<ErrorView />} /> */}
           </Routes>
 
     </div>
