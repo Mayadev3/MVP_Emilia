@@ -27,28 +27,23 @@ class Api {
     }
 
     /**
-     * Get all users 
+     * Register a new user
      **/
+    
+    static async registerUser(username, email, password) {
+        let body = { username, email, password };
 
-    static async getUsers() {
-        return await this._doFetch('/users');
+        return await this._doFetch('/register', 'POST', body);
     }
 
     /**
-     * Get data for user with ID 'userId'
+     * Get all collabs 
      **/
 
-    static async getUser(userId) {
-        return await this._doFetch(`/users/${userId}`);
+    static async getCollabs() {
+        return await this._doFetch('/collabs');
     }
 
-    /**
-     * General purpose GET (for URLs like /members-only)
-     **/
-
-    static async getContent(url) {
-        return await this._doFetch(url);
-    }
 
     /**
      * Private method for internal use only
@@ -62,8 +57,7 @@ class Api {
         };
 
         // Add token to headers if it exists in localStorage
-        // let token = Local.getToken();
-        let token = localStorage.getItem('token');
+        let token = Local.getToken();
         if (token) {
             options.headers['Authorization'] = 'Bearer ' + token;
         }

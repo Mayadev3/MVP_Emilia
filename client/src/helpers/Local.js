@@ -8,7 +8,6 @@ class Local {
     static saveUserInfo(token, user) {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(user));
-        console.log('hello from the Locale file.')
     }
     
     static removeUserInfo() {

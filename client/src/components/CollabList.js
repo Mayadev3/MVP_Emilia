@@ -42,27 +42,33 @@ function CollabList(props) {
       
           <tbody>
             {props.collabs.map(c => (
-              c.collab_id === editingId ? (
+              c.collab_id === editingId 
+              ? (
                 <tr key={c.collab_id}>
                   <td colSpan={headers.length + 1}>
                     <NewCollabForm 
-                    editingId = {editingId}
-                    editedCollab = {editedCollab}
-                    setEditingId = {setEditingId}
-                    addCollabCb = {props.addCollabCb}
+                        editingId = {editingId}
+                        editedCollab = {editedCollab}
+                        setEditingId = {setEditingId}
+                        addCollabCb = {props.addCollabCb}
                     />
                   </td>
                 </tr>
-              ) : (
+                ) 
+              : (
                 <tr key={c.collab_id}>
                   <td>
-                    <button
-                      onClick={e => handleEditClick(c.collab_id)}
-                      title="edit"
-                      type="button"
-                    >
-                      edit
-                    </button>
+                    {
+                      props.user && +props.user.isAdmin === +1
+                      ? <button
+                        onClick={e => handleEditClick(c.collab_id)}
+                        title="edit"
+                        type="button"
+                        >
+                        edit
+                        </button>
+                      : null
+                    }
                   </td>
                   {headers.map(header => {
                     const value =

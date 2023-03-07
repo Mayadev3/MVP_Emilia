@@ -1,14 +1,16 @@
 import React, {useEffect, useState} from 'react';
+import { Route, Routes, useNavigate, Link, Outlet, useParams } from 'react-router-dom';
+
 import './App.css';
 import CollabList from './components/CollabList';
 import NewCollabForm from './components/NewCollabForm';
 import LoginView from './components/LoginView';
-// import ErrorView from './components/ErrorView';
+import RegView from './components/RegView';
+import ErrorView from './components/ErrorView';
+import PrivateRoute from './components/PrivateRoute';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Route, Routes, useNavigate, Link, Outlet, useParams } from 'react-router-dom';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
+import Button from 'react-bootstrap/Button';
 
 import Local from './helpers/Local';
 import Api from './helpers/Api';
@@ -18,44 +20,40 @@ export default function App() {
   const [collabs, setCollabs] = useState([]);
   const [user, setUser] = useState(Local.getUser());
   const [loginErrorMsg, setLoginErrorMsg] = useState('');
+  const [registrationErrorMsg, setRegistrationErrorMsg] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     getCollabs();
   }, []);
 
-
   async function getCollabs() {
-    try {
-        let response = await fetch('/collabs');
-        if (response.ok) {
-          let data = await response.json();
-          const updatedData = data.map(item => {
-            const { date, ...rest } = item;
-            const newDate = new Date(date).toISOString().substring(0, 10);
-            return { ...rest, date: newDate};
-          });
-        setCollabs(updatedData);
-
+        let myresponse = await Api.getCollabs();
+        if (myresponse.ok) {
+              let data = myresponse.data;
+              const updatedData = data.map(item => {
+                const { date, ...rest } = item;
+                const newDate = new Date(date).toISOString().substring(0, 10);
+                return { ...rest, date: newDate};
+              });
+              setCollabs(updatedData);
         } else {
-            console.log(`Server error: ${response.status} ${response.statusText}`);
-        }
-
-    } catch (err) {
-        console.log(`Server error: ${err.message}`);
-    }
+            console.log(`Server error: ${myresponse.status} ${myresponse.statusText}`);
+        }    
   }
 
-    async function addCollab(collab) {
-
+  async function addCollab(collab) {
       if (collab.collab_id) {
-
           let options = {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(collab)
-        };
-    
+          };
+          let token = Local.getToken();
+              if (token) {
+                  options.headers['Authorization'] = 'Bearer ' + token;
+              }
+          
         try {
             let response = await fetch(`/collabs/${collab.collab_id}`, options);
             if (response.ok) {
@@ -74,33 +72,35 @@ export default function App() {
         }
 
       } else {
-
-        let options = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(collab)
-        };
-
-        try {
-            let response = await fetch('/collabs', options);
-            if (response.ok) {
-                let data = await response.json();
-                const updatedData = data.map(item => {
-                  const { date, ...rest } = item;
-                  const newDate = new Date(date).toISOString().substring(0, 10);
-                  return { ...rest, date: newDate};
-                });
-                setCollabs(updatedData);
-            } else {
-                console.log(`Server error: ${response.status} ${response.statusText}`);
-            }
+            let options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(collab)
+              };
+              let token = Local.getToken();
+              if (token) {
+                  options.headers['Authorization'] = 'Bearer ' + token;
+              }
+          try {
+              let response = await fetch('/collabs', options);
+              if (response.ok) {
+                  let data = await response.json();
+                  const updatedData = data.map(item => {
+                    const { date, ...rest } = item;
+                    const newDate = new Date(date).toISOString().substring(0, 10);
+                    return { ...rest, date: newDate};
+                  });
+                  setCollabs(updatedData);
+              } else {
+                  console.log(`Server error: ${response.status} ${response.statusText}`);
+              }
         } catch (err) {
             console.log(`Server error: ${err.message}`);
         }
       }
     }
 
-    async function editCollab(id, collab) {
+async function editCollab(id, collab) {
       let options = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -120,27 +120,34 @@ export default function App() {
     }
     }
 
-    async function doLogin(u, e, p) {
+  async function doLogin(u, e, p) {
       let myresponse = await Api.loginUser(u, e, p);
       if (myresponse.ok) {
         
-        // Local.saveUserInfo(myresponse.data.token, myresponse.data.user);
-        localStorage.setItem('token', myresponse.data.token);
-        localStorage.setItem('user', JSON.stringify(myresponse.data.user));
-
+        Local.saveUserInfo(myresponse.data.token, myresponse.data.user);
         setUser(myresponse.data.user);
         setLoginErrorMsg('');
-        navigate('/');
+        navigate('/collabs');
       } else {
         setLoginErrorMsg('Login failed.');
       }
     }
 
-    function doLogout() {
+  async function doRegistration(u, e, p) {
+      let myresponse = await Api.registerUser(u, e, p);
+      if (myresponse.ok) {
+        doLogin(u, e, p)
+        setRegistrationErrorMsg('');
+      } else {
+        setRegistrationErrorMsg('Registration failed.');
+      }
+    }
+
+  function doLogout() {
       Local.removeUserInfo();
       setUser(null);
-      // (in demo, NavBar will sends user to home page, adjust here)
-  }
+      navigate('/login');
+    }
 
   return (
     <div className="App">
@@ -151,51 +158,65 @@ export default function App() {
           crossorigin="anonymous"
         />
 
-          {/* <Navbar>
-              <Container>
-                <Navbar.Brand href="#home">Influencer Collaborations</Navbar.Brand>
-                <Navbar.Toggle />
-                <Navbar.Collapse className="justify-content-end">
-                  <Navbar.Text>
-                    Signed in as: `${user.username}`
-                  </Navbar.Text>
-                </Navbar.Collapse>
-              </Container>
-          </Navbar> */}
-
-
-          <h1>Influencer Collaborations</h1>
-
           <Routes>
                 <Route path="/login" element={
-                    <LoginView 
-                      loginCb={(username, email, password) => doLogin(username, email, password) }
-                      loginError={loginErrorMsg}
-                    />   
-                  } />
-
-                <Route path="/" element={
-                    <div>
-                      <Outlet />
-                      <CollabList 
-                      editCb = {editCollab}
-                      collabs = {collabs}
-                      addCollabCb={addCollab}
-                      />
+                  <div>
+                    <h1>Influencer Collaborations</h1>
+                    <div className='authGrid' >
+                        <div className='authItem1'>
+                        <LoginView 
+                            loginCb={(username, email, password) => doLogin(username, email, password) }
+                            loginError={loginErrorMsg}
+                          />
+                        </div>
+                          
+                        <div className='authItem2'>
+                          <RegView 
+                            registrationCb={(username, email, password) => doRegistration(username, email, password) }
+                            registrationError={registrationErrorMsg}
+                          />
+                        </div>
                     </div>
-                    } 
-                  >
-                        <Route path="/collabsform" element={
-                          // <PrivateRoute>
-                            <NewCollabForm 
-                            addCollabCb={addCollab}
-                            />
-                          // </PrivateRoute>
-                          } 
-                        />
-                </Route>
+                  </div>  
+                  } 
+                />
+                
+                <Route path="/collabs" element={
+                    <PrivateRoute>
+                      <div>
 
-                {/* <Route path="*" element={<ErrorView />} /> */}
+                        <div className='mainHeader'>
+                            
+                            <h2>Influencer Collaborations</h2>
+                            <div className='mainHeaderBtn'>
+                                { user && <p>User: {user.username}</p> }
+                                <div>
+                                    <Button onClick={doLogout} variant="secondary">
+                                      Logout
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+
+                        { 
+                          user && +user.isAdmin === +1 
+                          ? <NewCollabForm addCollabCb={addCollab} />
+                          : null
+                        }
+                        
+                        <CollabList 
+                              editCb = {editCollab}
+                              collabs = {collabs}
+                              addCollabCb={addCollab}
+                              user = {user}
+                        />
+                        
+                      </div>
+                    </PrivateRoute>
+                  } 
+                />
+
+                <Route path="*" element={<ErrorView code="404" text="Page not found" />} />
           </Routes>
 
     </div>

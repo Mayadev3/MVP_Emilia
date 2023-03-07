@@ -4,7 +4,6 @@ const db = require("../model/helper");
 
 /*get token from header and check if registered user*/
 function _getToken(req) {
-    console.log('hi there')
     if ( !('authorization' in req.headers) ) {
         return '';
     }
@@ -17,7 +16,6 @@ function _getToken(req) {
 
 function ensureUserLoggedIn(req, res, next) {
     let token = _getToken(req);
-    console.log(token)
 
     try {
         jwt.verify(token, SECRET_KEY);
@@ -29,7 +27,6 @@ function ensureUserLoggedIn(req, res, next) {
 
 async function ensureIsAdmin(req, res, next) {
     let token = _getToken(req);
-    // console.log(token);
     
     try { 
         let payload = jwt.verify(token, SECRET_KEY);

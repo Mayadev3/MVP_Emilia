@@ -1,0 +1,9 @@
+.RegView{
+    width: 400px;
+    text-align: left;
+}
+
+.RegView h3 {
+    text-align: center;
+    margin-top: 10px;
+}

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 
-import './LoginView.css';
+import './RegView.css';
 
-export default function LoginView(props) {
+export default function RegView(props) {
     const [username, setUsername] = useState('');
     const [email, setEmail ] = useState('');
     const [password, setPassword] = useState('');
@@ -28,18 +28,18 @@ export default function LoginView(props) {
 
     function handleSubmit(e) {
         e.preventDefault();
-        props.loginCb(username, email, password)
+        props.registrationCb(username, email, password)
     }
 
 
   return (
-    <div className='LoginView'>
+    <div className='RegView'>
 
-        <h3>User Login</h3>
-
+        <h3>User Registration</h3>
+        
         {
-            props.loginError && (
-                <p className="alert alert-danger">{props.loginError}</p>
+            props.registrationError && (
+                <p className="alert alert-danger">{props.registrationError}</p>
             )
         }
 
@@ -84,7 +84,7 @@ export default function LoginView(props) {
             <Button 
                 type="submit"
                 variant="secondary">
-                Log in
+                Register
             </Button>
 
         </Form>

@@ -1,0 +1,9 @@
+.LoginView{
+    width: 400px;
+    text-align: left;
+}
+
+.LoginView h3 {
+    text-align: center;
+    margin-top: 10px;
+}
