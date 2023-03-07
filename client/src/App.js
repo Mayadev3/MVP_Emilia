@@ -7,6 +7,7 @@ import NewCollabForm from './components/NewCollabForm';
 import LoginView from './components/LoginView';
 import RegView from './components/RegView';
 import ErrorView from './components/ErrorView';
+import UsersView from './components/UsersView';
 import PrivateRoute from './components/PrivateRoute';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,11 +22,38 @@ export default function App() {
   const [user, setUser] = useState(Local.getUser());
   const [loginErrorMsg, setLoginErrorMsg] = useState('');
   const [registrationErrorMsg, setRegistrationErrorMsg] = useState('');
+  const [users, setUsers] = useState([]);
+  const [active, setActive] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     getCollabs();
-  }, []);
+    getUsers();
+  }, [user]);
+
+  async function getUsers() {
+    let options = {
+      method: 'GET',
+      headers: {},
+    };
+
+    let token = Local.getToken();
+        if (token) {
+            options.headers['Authorization'] = 'Bearer ' + token;
+        }
+    
+    try {
+        let response = await fetch('/users/users', options);
+        if (response.ok) {
+          let users = await response.json();
+          setUsers(users);
+        } else {
+          console.log(`Server error: ${response.status} ${response.statusText}`)
+        }
+      } catch (err) {
+        console.log(`Server error: ${err.message}`);
+      }
+  }
 
   async function getCollabs() {
         let myresponse = await Api.getCollabs();
@@ -49,12 +77,13 @@ export default function App() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(collab)
           };
-          let token = Local.getToken();
+
+      let token = Local.getToken();
               if (token) {
                   options.headers['Authorization'] = 'Bearer ' + token;
               }
           
-        try {
+      try {
             let response = await fetch(`/collabs/${collab.collab_id}`, options);
             if (response.ok) {
                 let data = await response.json();
@@ -100,7 +129,7 @@ export default function App() {
       }
     }
 
-async function editCollab(id, collab) {
+  async function editCollab(id, collab) {
       let options = {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -146,8 +175,62 @@ async function editCollab(id, collab) {
   function doLogout() {
       Local.removeUserInfo();
       setUser(null);
+      setActive(false);
+      setUsers([]);
       navigate('/login');
     }
+
+  function toggleActive() {
+    setActive(!active);
+  }
+
+  async function deleteUser(id) {
+    let options = {
+          method: 'DELETE',
+          headers: {}
+        }
+
+    let token = Local.getToken();
+        if (token) {
+            options.headers['Authorization'] = 'Bearer ' + token;
+        }
+    
+    try {
+        let response = await fetch(`/users/users/${id}`, options);
+        if (response.ok) {
+          let updatedUsers = await response.json();
+          setUsers(updatedUsers);
+        } else {
+          console.log(`Server error: ${response.status} ${response.statusText}`);
+        }
+    } catch (err) {
+        console.log(`Server error: ${err.message}`);
+    }
+  }
+
+  async function makeAdmin(id) {
+    let options = {
+          method: 'PUT',
+          headers: {}
+        }
+
+    let token = Local.getToken();
+        if (token) {
+            options.headers['Authorization'] = 'Bearer ' + token;
+        }
+    
+    try {
+        let response = await fetch(`/users/users/${id}`, options);
+        if (response.ok) {
+          let updatedAdmins = await response.json();
+          setUsers(updatedAdmins);
+        } else {
+          console.log(`Server error: ${response.status} ${response.statusText}`);
+        }
+    } catch (err) {
+        console.log(`Server error: ${err.message}`);
+    }
+  }
 
   return (
     <div className="App">
@@ -184,19 +267,38 @@ async function editCollab(id, collab) {
                 <Route path="/collabs" element={
                     <PrivateRoute>
                       <div>
-
-                        <div className='mainHeader'>
-                            
+                          <div className='mainHeader'>
                             <h2>Influencer Collaborations</h2>
                             <div className='mainHeaderBtn'>
                                 { user && <p>User: {user.username}</p> }
+
+                                { 
+                                  user && +user.isAdmin === +1 
+                                  ? <div>
+                                        <Button onClick={ toggleActive } variant="secondary">
+                                          manage users
+                                        </Button>
+                                    </div>
+                                  : null
+                                }
+
                                 <div>
-                                    <Button onClick={doLogout} variant="secondary">
+                                    <Button onClick={ doLogout } variant="secondary">
                                       Logout
                                     </Button>
                                 </div>
-                            </div>
-                        </div>
+                          </div>
+                      </div>
+
+                        {
+                          active 
+                          ? <UsersView 
+                                users = { users } 
+                                deleteUserCb = { deleteUser }
+                                makeAdminCb = { makeAdmin }
+                            />
+                          : null
+                        }
 
                         { 
                           user && +user.isAdmin === +1 

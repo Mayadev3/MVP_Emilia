@@ -7,6 +7,7 @@ const cors = require('cors');
 var collabsRouter = require('./routes/collabs');
 var usersRouter = require('./routes/influencers');
 var authRouter = require('./routes/auth')
+var regUsersRouter = require ('./routes/users')
 
 var app = express();
 
@@ -20,5 +21,6 @@ app.use(cookieParser());
 app.use('/', authRouter);
 app.use('/collabs', collabsRouter);
 app.use('/influencers', usersRouter);
+app.use('/users', regUsersRouter);
 
 module.exports = app;

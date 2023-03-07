@@ -1,0 +1,21 @@
+* {
+  box-sizing: border-box;
+}
+
+.UsersView {
+  display: flex;
+  justify-content: left;
+  border: 1px solid rgb(226, 226, 226);
+}
+.UsersView .usersTable {
+  width: 60%;
+
+}
+
+button Button {
+  cursor: pointer;
+  border: none;
+  background-color: transparent;
+  color:grey;
+  border-radius: 3px;
+}

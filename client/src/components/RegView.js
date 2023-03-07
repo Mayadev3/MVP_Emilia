@@ -81,11 +81,13 @@ export default function RegView(props) {
                 />
             </Form.Group>
             
+            <div className='button'>
             <Button 
                 type="submit"
                 variant="secondary">
                 Register
             </Button>
+            </div>
 
         </Form>
 

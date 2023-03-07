@@ -19,7 +19,6 @@ class Api {
     /**
      * Log in a user
      **/
-    
     static async loginUser(username, email, password) {
         let body = { username, email, password };
 
@@ -29,7 +28,6 @@ class Api {
     /**
      * Register a new user
      **/
-    
     static async registerUser(username, email, password) {
         let body = { username, email, password };
 
@@ -39,16 +37,21 @@ class Api {
     /**
      * Get all collabs 
      **/
-
     static async getCollabs() {
         return await this._doFetch('/collabs');
     }
+
+        /**
+     * Post a new collab as admin user 
+     **/
+        static async addCollab(collab) {
+            return await this._doFetch('/collabs');
+        }
 
 
     /**
      * Private method for internal use only
      **/
-
     static async _doFetch(url, method = 'GET', body = null) {
         // Prepare fetch() options
         let options = { 

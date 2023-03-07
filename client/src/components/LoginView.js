@@ -29,7 +29,7 @@ export default function LoginView(props) {
     function handleSubmit(e) {
         e.preventDefault();
         props.loginCb(username, email, password)
-    }
+        }
 
 
   return (
@@ -43,7 +43,7 @@ export default function LoginView(props) {
             )
         }
 
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} className="form">
 
             <Form.Group className="mb-3" >
                 <Form.Label>Username</Form.Label>
@@ -81,11 +81,14 @@ export default function LoginView(props) {
                 />
             </Form.Group>
             
+            <div className='button'>
             <Button 
                 type="submit"
                 variant="secondary">
                 Log in
             </Button>
+            </div>
+            
 
         </Form>
 

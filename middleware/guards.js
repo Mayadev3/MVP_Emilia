@@ -38,10 +38,10 @@ async function ensureIsAdmin(req, res, next) {
         if (result.data[0].isAdmin === 1) {
             next();
         } else {
-            res.status(403).send({ error: 'Forbidden.' });
+            res.status(403).send({ error: 'Unauthorized.' });
         }
     } catch (err) {
-        res.status(401).send({ error: 'Unauthorized.'})
+        res.status(401).send({ error: 'Forbidden.' })
     }
 }
 
